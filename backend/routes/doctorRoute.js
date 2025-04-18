@@ -3,7 +3,4 @@ import { loginDoctor, appointmentsDoctor, appointmentCancel, doctorList, changeA
 import authDoctor from '../middleware/authDoctor.js';
 const doctorRouter = express.Router();
 doctorRouter.post("/login", loginDoctor)
-
-
-
 export default doctorRouter
