@@ -210,6 +210,73 @@ export const verifyRazorpay = async (req, res) => {
         });
     }
 };
+// Login with OTP
+export const loginWithOTP = async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+
+        if (!phone || !otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'Phone number and OTP are required'
+            });
+        }
+
+        // Format phone number to standard format
+        const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+
+        // Verify OTP using the imported singleton instance
+        const verificationResult = await otpService.verifyOTP(formattedPhone, otp);
+
+        if (verificationResult.success) {
+            // Check if user exists with this phone
+            let user = await userModel.findOne({ phone: formattedPhone });
+
+            // If user doesn't exist, create one
+            if (!user) {
+                user = new userModel({
+                    phone: formattedPhone,
+                    name: `User-${Math.floor(1000 + Math.random() * 9000)}`,
+                    email: `user-${Math.floor(1000 + Math.random() * 9000)}@example.com`,
+                    password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10)
+                });
+                await user.save();
+            }
+
+            // Generate tokens
+            const { accessToken, refreshToken } = generateTokens(user._id);
+
+            // Remove password from user object
+            const userData = user.toObject();
+            delete userData.password;
+
+            // Return success response
+            return res.status(200).json({
+                success: true,
+                message: 'OTP verification successful',
+                data: {
+                    user: userData,
+                    tokens: {
+                        accessToken,
+                        refreshToken
+                    }
+                }
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: verificationResult.error || 'OTP verification failed'
+            });
+        }
+    } catch (error) {
+        console.error('Error in login with OTP:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to process login request'
+        });
+    }
+};
+
 
         
 export {
