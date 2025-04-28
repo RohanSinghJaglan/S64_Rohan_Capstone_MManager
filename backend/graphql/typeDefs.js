@@ -117,5 +117,25 @@ const typeDefs = gql`
     # Admin queries
     getAllAppointments: [Appointment!]!
     getDashboardStats: DashboardStats!
+  };
+
+  type Mutation {
+    # Auth mutations
+    registerUser(input: RegisterInput!): AuthPayload!
+    loginUser(input: LoginInput!): AuthPayload!
+    refreshToken(token: String!): String!
+    
+    # Appointment mutations
+    bookAppointment(input: AppointmentInput!): Appointment!
+    cancelAppointment(id: ID!): Appointment!
+    
+    # Payment mutations
+    createRazorpayOrder(appointmentId: ID!): RazorpayOrder!
+    verifyRazorpayPayment(orderId: String!, paymentId: String!, signature: String!): Appointment!
+    
+    # Admin mutations
+    addDoctor(input: DoctorInput!): Doctor!
+    updateDoctor(id: ID!, input: DoctorInput!): Doctor!
   }`;
+
   export default typeDefs; 
