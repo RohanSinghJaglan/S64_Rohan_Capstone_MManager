@@ -231,11 +231,197 @@ const resolvers = {
       
       const appointment = await newAppointment.save();
 
+ // Populate user and doctor data
+ const populatedAppointment = await appointmentModel.findById(appointment._id)
+ .populate('userId')
+ .populate('doctorId');
 
+// Publish subscription event
+pubsub.publish('APPOINTMENT_BOOKED', {
+ appointmentBooked: populatedAppointment
+});
 
+return populatedAppointment;
+},
+
+cancelAppointment: async (_, { id }, context) => {
+const user = checkAuth(context);
+
+// Find appointment
+const appointment = await appointmentModel.findById(id);
+
+if (!appointment) {
+ throw new Error('Appointment not found');
 }
-}};
 
+// Check if user owns this appointment
+if (appointment.userId.toString() !== user.userId && user.role !== 'admin') {
+ throw new Error('Not authorized to cancel this appointment');
+}
+
+// Update appointment
+appointment.cancelled = true;
+appointment.cancellationReason = 'Cancelled by user';
+
+const updatedAppointment = await appointment.save();
+
+// Populate user and doctor data
+const populatedAppointment = await appointmentModel.findById(updatedAppointment._id)
+ .populate('userId')
+ .populate('doctorId');
+
+// Publish subscription event
+pubsub.publish('APPOINTMENT_CANCELLED', {
+ appointmentCancelled: populatedAppointment
+});
+
+return populatedAppointment;
+},
+
+// Payment mutations
+createRazorpayOrder: async (_, { appointmentId }, context) => {
+const user = checkAuth(context);
+
+// Find appointment
+const appointment = await appointmentModel.findById(appointmentId);
+
+if (!appointment) {
+ throw new Error('Appointment not found');
+}
+
+// Check if user owns this appointment
+if (appointment.userId.toString() !== user.userId) {
+ throw new Error('Not authorized');
+}
+
+// Check if Razorpay is initialized
+if (!razorpay) {
+ throw new Error('Payment service not configured');
+}
+
+// Create order options
+const options = {
+ amount: appointment.amount * 100,
+ currency: process.env.CURRENCY || 'INR',
+ receipt: appointmentId.toString()
+};
+
+// Create Razorpay order
+const order = await razorpay.orders.create(options);
+
+// Update appointment with order ID
+appointment.orderId = order.id;
+await appointment.save();
+
+return {
+ id: order.id,
+ amount: order.amount / 100,
+ currency: order.currency
+};
+},
+
+verifyRazorpayPayment: async (_, { orderId, paymentId, signature }, context) => {
+const user = checkAuth(context);
+
+// Find appointment by order ID
+const appointment = await appointmentModel.findOne({ orderId });
+
+if (!appointment) {
+ throw new Error('Appointment not found');
+}
+
+// Check if user owns this appointment
+if (appointment.userId.toString() !== user.userId) {
+ throw new Error('Not authorized');
+}
+
+// Verify signature
+const crypto = require('crypto');
+const generatedSignature = crypto
+ .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+ .update(orderId + '|' + paymentId)
+ .digest('hex');
+
+if (generatedSignature !== signature) {
+ throw new Error('Invalid payment signature');
+}
+
+// Update appointment payment status
+appointment.payment = true;
+appointment.paymentId = paymentId;
+appointment.status = 'confirmed';
+
+const updatedAppointment = await appointment.save();
+
+// Populate user and doctor data
+const populatedAppointment = await appointmentModel.findById(updatedAppointment._id)
+ .populate('userId')
+ .populate('doctorId');
+
+// Publish subscription event
+pubsub.publish('PAYMENT_COMPLETE', {
+ paymentComplete: populatedAppointment
+});
+
+return populatedAppointment;
+},
+
+// Admin mutations
+addDoctor: async (_, { input }, context) => {
+const user = checkAuth(context);
+
+// Check if user is admin
+const userDoc = await userModel.findById(user.userId);
+if (userDoc.role !== 'admin') {
+ throw new Error('Not authorized');
+}
+
+// Create new doctor
+const newDoctor = new doctorModel({
+ ...input,
+ slots: []
+});
+
+return await newDoctor.save();
+},
+
+updateDoctor: async (_, { id, input }, context) => {
+const user = checkAuth(context);
+
+// Check if user is admin
+const userDoc = await userModel.findById(user.userId);
+if (userDoc.role !== 'admin') {
+ throw new Error('Not authorized');
+}
+
+// Find and update doctor
+const updatedDoctor = await doctorModel.findByIdAndUpdate(
+ id,
+ { $set: input },
+ { new: true }
+);
+
+if (!updatedDoctor) {
+ throw new Error('Doctor not found');
+}
+
+return updatedDoctor;
+}
+},
+
+Subscription: {
+appointmentBooked: {
+subscribe: () => pubsub.asyncIterator(['APPOINTMENT_BOOKED'])
+},
+appointmentCancelled: {
+subscribe: () => pubsub.asyncIterator(['APPOINTMENT_CANCELLED'])
+},
+paymentComplete: {
+subscribe: () => pubsub.asyncIterator(['PAYMENT_COMPLETE'])
+}
+}
+
+};
 
 
   export default resolvers; 
