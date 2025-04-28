@@ -136,6 +136,12 @@ const typeDefs = gql`
     # Admin mutations
     addDoctor(input: DoctorInput!): Doctor!
     updateDoctor(id: ID!, input: DoctorInput!): Doctor!
-  }`;
+  };
+   type Subscription {
+    appointmentBooked: Appointment!
+    appointmentCancelled: Appointment!
+    paymentComplete: Appointment!
+  }
+`;
 
   export default typeDefs; 

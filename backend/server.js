@@ -55,6 +55,33 @@ io.on('connection', (socket) => {
 app.set('io', io)
 app.set('activeConnections', activeConnections)
 
+// Create Apollo Server
+const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+
+
+
+
+const apolloServer = new ApolloServer({
+    schema,
+    context,
+    plugins: [
+        // Proper shutdown of http server
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        // Proper shutdown of websocket server
+        {
+            async serverWillStart() {
+                return {
+                    async drainServer() {
+                        await serverCleanup.dispose();
+                    },
+                };
+            },
+        },
+    ],
+})
+
+
 // Creating the WebSocket server
 const wsServer = new WebSocketServer({
     server: httpServer,
