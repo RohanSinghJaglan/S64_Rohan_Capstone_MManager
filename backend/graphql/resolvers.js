@@ -113,9 +113,128 @@ const resolvers = {
   },
 
 
+  Mutation: {
+    // Auth mutations
+    registerUser: async (_, { input }) => {
+      const { name, email, password, phone, address } = input;
+      
+      // Check if user already exists
+      const existingUser = await userModel.findOne({ email });
+      if (existingUser) {
+        throw new Error('User with this email already exists');
+      }
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create new user
+      const newUser = new userModel({
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        address,
+        role: 'user'
+      });
+      
+      const user = await newUser.save();
+      
+      // Generate tokens
+      const { token, refreshToken } = generateToken(user._id);
+      
+      return {
+        user,
+        token,
+        refreshToken
+      };
+    },
+    
+    loginUser: async (_, { input }) => {
+      const { email, password } = input;
+      
+      // Find user
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        throw new Error('Invalid email or password');
+      }
+      
+      // Check password
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        throw new Error('Invalid email or password');
+      }
+      
+      // Generate tokens
+      const { token, refreshToken } = generateToken(user._id);
+      
+      return {
+        user,
+        token,
+        refreshToken
+      };
+    },
+    
+    refreshToken: async (_, { token }) => {
+      try {
+        // Verify the refresh token
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+        );
+        
+        // Generate a new access token
+        return jwt.sign(
+          { userId: decoded.userId },
+          process.env.JWT_SECRET,
+          { expiresIn: '1d' }
+        );
+      } catch (error) {
+        throw new Error('Invalid or expired refresh token');
+      }
+    },
+    
+    // Appointment mutations
+    bookAppointment: async (_, { input }, context) => {
+      const user = checkAuth(context);
+      const { doctorId, slotDate, slotTime, problem } = input;
+      
+      // Check if doctor exists
+      const doctor = await doctorModel.findById(doctorId);
+      if (!doctor) {
+        throw new Error('Doctor not found');
+      }
+      
+      // Check if slot is available
+      const existingAppointment = await appointmentModel.findOne({
+        doctorId,
+        slotDate,
+        slotTime,
+        cancelled: false
+      });
+      
+      if (existingAppointment) {
+        throw new Error('This slot is already booked');
+      }
+      
+      // Create new appointment
+      const newAppointment = new appointmentModel({
+        userId: user.userId,
+        doctorId,
+        slotDate,
+        slotTime,
+        problem,
+        payment: false,
+        amount: doctor.fees,
+        cancelled: false,
+        status: 'pending'
+      });
+      
+      const appointment = await newAppointment.save();
 
-  
-};
+
+
+}
+}};
 
 
 
