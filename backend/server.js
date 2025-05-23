@@ -24,6 +24,7 @@ import skinRouter from './routes/skinRoute.js';
 import aiRouter from './routes/aiRoute.js';
 import authRoutes from './routes/authRoute.js';
 import featureRoutes from './routes/featureRoutes.js';
+const rateLimiter = require('./middlewares/rateLimiter');
 
 
 
@@ -161,7 +162,7 @@ const apolloServer = new ApolloServer({
 });
 
 // Routes
-
+app.use(rateLimiter);// protecting all routes if placed above all the routes;
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRouter);
 app.use("/api/admin", adminRouter);
