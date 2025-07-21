@@ -1,85 +1,133 @@
-Project Manager: MManager
+
+# 🏥 MedManager Pro
+
+> Your all-in-one Medical Management Platform for Clinics, Doctors, and Patients.
+
+🚀 **Live Link:** [https://mmp-2-l8fv.vercel.app/](https://mmp-2-l8fv.vercel.app/)
+
+🧠 Built with MERN Stack + Google Auth + Vercel | A capstone project by [Rohan Singh Jaglan](https://github.com/rohansinghjaglan)
+
 ---
-Idea :- 
+
+## 🧩 Features
+
+- 👨‍⚕️ Doctor & Patient Portals
+- 📋 Appointment Scheduling System
+- 📁 Patient Medical History Management
+- 🧠 **AI-powered Skin Disease Analyzer** (Beta)
+- 🔐 Google Authentication
+- ⚙️ Admin Panel for System Control
+- 📅 Responsive Calendar for Bookings
+- 🌐 Deployed on Vercel with Production-ready UI
+- 💳 Razorpay Payment Gateway
+
 ---
-A doctor appointment booking platform designed specifically for the Indian healthcare ecosystem. The platform aims to streamline the process of finding and booking doctors, ensuring accessibility for both urban users and those in tier-2/tier-3 cities.
 
+## 🛠️ Tech Stack
 
-Brief Description:
+- **Frontend:** React.js, TailwindCSS, Axios
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB (Cloud)
+- **Authentication:** Google , Razorpay
+- **Deployment:** Vercel
+- **AI Integration:** Skin Analyser 
+
 ---
-MManager is an innovative medtech platform designed to streamline doctor appointments and enhance healthcare accessibility across India, including urban and tier-2/3 cities. With a web-first approach, it connects patients with a broad range of doctors while integrating partnerships with hospitals, diagnostic centers, and insurance providers. The platform features an intuitive frontend, a robust backend powered by MongoDB, and an evolving admin panel. MManager aims to revolutionize digital healthcare by offering a seamless, efficient, and patient-centric experience
 
-Weekly Plans :
+## 📦 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/kalviumcommunity/S64_Rohan_Capstone_MManager.git
+cd S64_Rohan_Capstone_MManager
+```
+
 ---
-WEEK 1:
-Goal: Set up backend infrastructure, authentication, and database schema.
-Project Setup & Database Design
-Initialize Node.js + Express.js project.
-Set up MongoDB with Mongoose.
-Define models:
-Users (Patients & Doctors)
-Appointments
-Medical Records
-Payments 
- User Authentication & Authorization
-Implement JWT authentication (Signup/Login for Doctors & Patients).
-Role-based access control (Patient vs. Doctor vs. Admin).
-Password encryption using bcrypt.
-API endpoints for register/login/logout.
-Doctor & Appointment Management APIs
-CRUD operations for Doctors (Add, Update, Delete, Fetch).
-CRUD operations for Appointments (Booking, Rescheduling, Cancellation).
-Middleware for authentication and role-based access.
- Testing & Debugging Backend APIs
-Use Postman/Thunderclient to test API responses.
-Set up error handling & validation (Express middleware).
-Deploy backend on Render/AWS for early testing.
 
-WEEK 2:
-Goal: Build the core UI for doctor discovery and appointment booking.
- React Setup & Routing
-Initialize React.js with Vite or CRA.
-Install React Router for navigation.
-Set up basic pages and routes:
-Landing Page
-Login/Register Page
-Dashboard (Doctor & Patient views)
-Book Appointment Page
- UI Components & State Management
-Develop Navbar, Sidebar, Footer, & Layout Components.
-Implement Redux/Context API for state management.
-Design Doctor Cards, Appointment Forms, and Dashboard Widgets.
-API Integration with Backend
-Connect frontend to backend APIs (Axios/Fetch).
-Implement JWT-based authentication in frontend.
-Display doctors list, appointment bookings, and user details dynamically.
- UI Refinements & Bug Fixes
-Improve UI/UX with TailwindCSS.
-Ensure mobile responsiveness.
-Fix API response handling and minor UI bugs.
+## ⚙️ Running the App Locally
 
-WEEK 3:
-Goal: Build the admin panel and integrate additional features.
- Admin Dashboard
-Separate Admin Role & Permissions.
-Admin can view users, doctors, and appointments.
-Implement doctor approval/rejection system.
-Payment Integration 
-Integrate Razorpay or Stripe for online consultation payments.
-Store payment records in MongoDB.
-Generate payment invoices.[IF NEEDED]
-Notifications & User Dashboard Enhancements
-Implement email & SMS notifications (Nodemailer, Twilio).
-Add appointment reminders for users.
-Improve user dashboards with past medical records & analytics.
-Security & Performance Optimizations
-Add rate limiting & CORS handling.
+### 1. Install Dependencies:
 
-Implement MongoDB indexing & query optimizations.
-Set up logging & error tracking (Winston/Sentry).[IF NEEDED]
+#### For Frontend:
+```bash
+cd frontend
+npm install
+```
 
-### DEPLOYED FRONTEND LINK:
-https://med-manager-pro.vercel.app/
+#### For Backend:
+```bash
+cd ../backend
+npm install
+```
 
-### DEPLOYED BACKEND LINK:
-https://medmanagerpro.onrender.com/
+---
+
+### 2. Environment Variables
+
+Create `.env` files in both `/frontend` and `/backend` folders:
+
+#### Example `.env` for Backend:
+```env
+MONGO_URI=your_mongodb_uri
+PORT=5000
+```
+
+#### Example `.env` for Frontend:
+```env
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_key
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+---
+
+### 3. Run Backend Server:
+```bash
+cd backend
+npm start
+```
+
+### 4. Run Frontend App:
+```bash
+cd frontend
+npm run dev
+```
+
+---
+
+## ✨ Highlight Feature: Skin Disease Analyzer 🧬
+
+An integrated AI-based skin condition detector allows users to upload skin images and get **possible disease predictions** instantly. This is still in **Beta Phase** and will improve over time with enhanced datasets and deep learning.
+
+> Try it from the main navigation → "Skin Analyzer" section
+
+
+## 📁 Folder Structure
+
+```
+S64_Rohan_Capstone_MManager/
+├── frontend/
+│   ├── src/
+│   ├── public/
+├── backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   └── index.js
+```
+
+---
+
+## 🤝 Contributions
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## 🙋‍♂️ Author
+
+Built with 💙 by [Rohan Singh Jaglan](https://github.com/rohansinghjaglan)
+
+---
+
+
